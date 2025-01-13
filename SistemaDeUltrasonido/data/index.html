@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Ultrasonido</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Control de Ultrasonido</h1>
+        <div class="slider-container">
+            <label for="frequency">Frecuencia (kHz):</label>
+            <input type="range" id="frequency" name="frequency" min="0" max="10" step="1" value="0" oninput="updateFrequency(this)">
+            <span id="frequency-value">0 kHz</span>
+        </div>
+        
+        <div class="input-container">
+            <label for="minutes">Tiempo (min:seg):</label>
+            <input type="number" id="minutes" name="minutes" min="0" placeholder="min" style="width: 50px;">
+            <span>:</span>
+            <input type="number" id="seconds" name="seconds" min="0" max="59" placeholder="seg" style="width: 50px;">
+        </div>
+
+        <div class="checkbox-container">
+            <label for="recipiente">¿Recipiente lleno con agua?</label>
+            <input type="checkbox" id="recipiente" name="recipiente">
+        </div>
+
+        <div class="button-container">
+            <button id="configure-btn" onclick="configureDevice()">Configurar</button>
+            <button id="toggle-btn" onclick="apagarDispositivoManual()">Apagar</button>
+        </div>
+
+        <p id="device-status">Estado del dispositivo: Apagado</p>
+        <div id="elapsed-time" style="display: none;">
+            Tiempo restante: <span id="elapsed-time-value">00:00</span>
+        </div>
+        
+    </div>
+    <div id="custom-alert" class="custom-alert" style="display: none;">
+        <div class="alert-content">
+          <div id="alert-icon" class="alert-icon"></div>
+          <h2 id="alert-title"></h2>
+          <p id="alert-message"></p>
+          <div id="alert-buttons" style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;"></div>
+        </div>
+      </div>
+      
+
+    <script src="script.js"></script>
+    
+</body>
+</html>

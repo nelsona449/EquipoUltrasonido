@@ -1,0 +1,286 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url('/ultrasonido2.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
+}
+
+.container {  
+    width: 90%;  
+    max-width: 400px;  
+    position: absolute;   
+    top: 50%;   
+    left: 50%;   
+    transform: translate(-50%, -50%);   
+    padding: 20px;  
+    background: rgba(255, 255, 255, 0.40); 
+    border-radius: 10px;  
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);  
+    text-align: center;  
+}
+
+h1 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #444;
+}
+
+.slider-container, .input-container {
+    margin: 20px 0;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    
+}
+
+input[type="range"] {
+    width: 100%;
+    margin: 10px 0;
+}
+
+#frequency-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #000000;
+}
+
+input[type="number"] {
+    width: calc(50% - 20px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+button {
+    flex: 1;
+    margin: 0 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#configure-btn {
+    background-color: #007BFF;
+    color: #fff;
+}
+
+#configure-btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+#toggle-btn {
+    background-color: #FF4136; /* Color rojo */
+    color: #fff;
+}
+
+#toggle-btn.on {
+    background-color: #FF4136; /* Mantener el color rojo */
+}
+
+#toggle-btn:hover {
+    transform: scale(1.05);
+}
+#device-status {
+    font-size: 1rem;
+    margin-top: 20px;
+    font-weight: bold;
+    color: #000000;
+}
+
+#elapsed-time {
+    font-size: 1rem;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #000000;
+}
+
+.custom-alert {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Por encima de otros elementos */
+    font-family: 'Arial', sans-serif;
+}
+
+.alert-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+}
+
+.alert-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    font-size: 24px;
+    color: white;
+}
+
+.alert-icon.success {
+    background-color: #4CAF50; /* Verde para ÃƒÂ©xito */
+}
+
+.alert-icon.error {
+    background-color: #F44336; /* Rojo para error */
+}
+
+.alert-icon.warning {
+    background-color: #FFC107; /* Amarillo para advertencia */
+}
+
+#alert-button {
+    background-color: #4CAF50; /* Color inicial del botÃƒÂ³n */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+#alert-button:hover {
+    background-color: #45a049;
+}
+
+/* Colores del botÃƒÂ³n segÃƒÂºn el tipo de alerta */
+.alert-content.success #alert-button {
+    background-color: #4CAF50;
+}
+
+.alert-content.error #alert-button {
+    background-color: #F44336;
+}
+
+.alert-content.warning #alert-button {
+    background-color: #FFC107;
+}
+
+.checkbox-container input[type="checkbox"] {
+    transform: scale(2); /* Ajusta el nÃƒÂºmero para hacerlo mÃƒÂ¡s grande */
+}
+
+.checkbox-container {
+    display: flex;
+    justify-content: center; /* Centra el contenido en el eje horizontal */
+    align-items: center; /* Centra el contenido en el eje vertical */
+    margin: 20px 0;
+}
+
+.checkbox-container label {
+    margin-right: 10px; /* Espacio entre el texto y el checkbox */
+}
+
+#alert-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  #alert-buttons .cancel-button {
+    background-color: #f44336; /* Rojo */
+    color: white;
+  }
+  
+  #alert-buttons .cancel-button:hover {
+    background-color: #d32f2f;
+  }
+  
+  #alert-buttons .confirm-button {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+  }
+  
+  #alert-buttons .confirm-button:hover {
+    background-color: #388E3C;
+  }
+  
+  /* Estilos base para botones */
+.alert-buttons button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    margin: 5px;
+  }
+  
+  /* BotÃƒÂ³n para notificaciones de ÃƒÂ©xito */
+  .alert-button-success {
+    background-color: #4CAF50; /* Verde */
+    color: #ffffff; /* Texto negro para contraste */
+    font-weight: bold; /* Texto en negrita */
+  }
+  
+  .alert-button-success:hover {
+    background-color: #45a049;
+  }
+  
+  /* BotÃƒÂ³n para notificaciones de error */
+  .alert-button-error {
+    background-color: #F44336; /* Rojo */
+    color: #ffffff; /* Texto negro para contraste */
+    font-weight: bold; /* Texto en negrita */  
+}  
+  
+  
+  .alert-button-error:hover {
+    background-color: #e53935;
+  }
+
+
+  /* BotÃƒÂ³n para notificaciones de advertencia */
+  .alert-button-warning {
+    background-color: #FFC107; /* Amarillo */
+    color: #ffffff; /* Texto negro para contraste */
+    font-weight: bold; /* Texto en negrita */
+  }
+  
+  .alert-button-warning:hover {
+    background-color: #ffb300;
+  }
+  
+/* Boton de cancelar */
+.alert-button-default {
+    background-color: #ff0000; /* Gris claro */
+    color: #ffffff; /* Texto negro para contraste */
+    font-weight: bold; /* Texto en negrita */
+  }
+  
+  .alert-button-default:hover {
+    background-color: #d6d6d6;
+  }
