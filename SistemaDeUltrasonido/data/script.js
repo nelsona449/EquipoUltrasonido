@@ -1,66 +1,133 @@
 // Variables para controlar el estado del dispositivo
 let estadoDispositivo = localStorage.getItem("estadoDispositivo") || "apagado";
-let tiempoRestante = parseInt(localStorage.getItem("tiempoRestante")) || 0;
 let countdownInterval;
 const tiempoLimite = 300; // Tiempo límite del equipo en funcionamiento
+let configurarDeviceTimer; // Temporizador para advertencia
+const ipLocal= "/192.168.4.1";
 
 window.onload = () => {
+  const endTime = parseInt(localStorage.getItem("endTime"));
+
+  // Cancelar cualquier temporizador existente al cargar la página
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+
+  // Verificar si el temporizador expiró
+  if (endTime && Date.now() > endTime) {
+    console.log("El temporizador expiró, limpiando el tiempo restante.");
+    localStorage.removeItem("startTime");
+    localStorage.removeItem("endTime");
+    cambiarEstadoDispositivo("apagado");
+    return;
+  }
+
   restaurarEstadoDispositivo();
-  if (estadoDispositivo === "encendido" && tiempoRestante > 0) {
+
+  // Reanudar el temporizador si corresponde
+  if (estadoDispositivo === "encendido" && endTime && Date.now() < endTime) {
     console.log("Reanudando temporizador...");
-    const elapsedTimeElement = document.getElementById("elapsed-time");
-    elapsedTimeElement.style.display = "block";
+    const tiempoRestante = Math.floor((endTime - Date.now()) / 1000);
+    document.getElementById("elapsed-time").style.display = "block";
     startCountdown(tiempoRestante);
   }
 };
 
-// Función para iniciar el temporizador de cuenta regresiva
+
+
+
+/// Función para iniciar el temporizador de cuenta regresiva
 function startCountdown(totalTiempo) {
   const elapsedTimeElement = document.getElementById("elapsed-time-value");
-  let tiempoRestante = totalTiempo;
 
-  // Guardar el tiempo total configurado en localStorage
-  localStorage.setItem("tiempoRestante", tiempoRestante);
-  console.log("El tiempo total configurado en localStorage:" + tiempoRestante);
+  // Cancelar cualquier temporizador previo
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+
+  // Calcular tiempo de finalización
+  const startTime = Date.now();
+  const endTime = startTime + totalTiempo * 1000;
+  localStorage.setItem("startTime", startTime);
+  localStorage.setItem("endTime", endTime);
+
   countdownInterval = setInterval(() => {
-    if (tiempoRestante > 0) {
-      tiempoRestante--;
-      // Guardar el tiempo restante actualizado en localStorage
-      localStorage.setItem("tiempoRestante", tiempoRestante);
+    const tiempoActual = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
 
-      const minutos = Math.floor(tiempoRestante / 60);
-      const segundos = tiempoRestante % 60;
+    if (tiempoActual > 0) {
+      const minutos = Math.floor(tiempoActual / 60);
+      const segundos = tiempoActual % 60;
       elapsedTimeElement.textContent = `${String(minutos).padStart(
         2,
         "0"
       )}:${String(segundos).padStart(2, "0")}`;
     } else {
       clearInterval(countdownInterval);
-      // Eliminar el tiempo restante de localStorage al finalizar
-      localStorage.removeItem("tiempoRestante");
+      apagarDispositivoAutomatico();
+      localStorage.removeItem("startTime");
+      localStorage.removeItem("endTime");
       showAlert(
         "¡Fin del Tiempo!",
         "El dispositivo se apagó automáticamente.",
         "success"
       );
-      apagarDispositivoAutomatico();
     }
+
+    // Validar el estado de la tapa
+    fetch("http://" + ipLocal + "/estado-tapa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}), // Solicitud vacía
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.estado === "abierta") {
+          console.log("¡Tapa abierta detectada! Apagando dispositivo...");
+          clearInterval(countdownInterval);
+          apagarDispositivoAutomatico(); // Llamar a la función de apagado
+          showAlert(
+            "¡ADVERTENCIA!",
+            "El dispositivo fue apagado automáticamente porque la tapa fue abierta.",
+            "warning"
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Error al verificar el estado de la tapa:", error.message);
+      });
   }, 1000);
 }
 
+
+
 // Función para restaurar el estado del dispositivo desde localStorage
 function restaurarEstadoDispositivo() {
-  cambiarEstadoDispositivo(estadoDispositivo); // Restaurar estado desde Local Storage
+  cambiarEstadoDispositivo(estadoDispositivo);
   console.log(`Estado restaurado: ${estadoDispositivo}`);
 
-  const tiempoGuardado = parseInt(localStorage.getItem("tiempoRestante"));
-  if (estadoDispositivo === "encendido" && tiempoGuardado > 0) {
-    console.log(
-      `Restaurando temporizador con ${tiempoGuardado} segundos restantes.`
-    );
-    startCountdown(tiempoGuardado); // Reinicia el temporizador
+  const endTime = parseInt(localStorage.getItem("endTime"));
+  if (estadoDispositivo === "encendido" && endTime) {
+    const currentTime = Date.now();
+    const tiempoRestante = Math.max(0, Math.floor((endTime - currentTime) / 1000));
+
+    if (tiempoRestante > 0) {
+      console.log(`Restaurando temporizador con ${tiempoRestante} segundos restantes.`);
+      startCountdown(tiempoRestante);
+    } else {
+      console.log("El temporizador ya expiró. Apagando dispositivo...");
+      localStorage.removeItem("startTime");
+      localStorage.removeItem("endTime");
+      cambiarEstadoDispositivo("apagado");
+    }
   }
 }
+
+
 
 // Función para cambiar el estado del dispositivo y guardar en localStorage
 function cambiarEstadoDispositivo(estado) {
@@ -86,8 +153,6 @@ function updateFrequency(slider) {
   document.getElementById("frequency-value").textContent = `${mappedValue} kHz`;
 }
 
-let configurarDeviceTimer; // Temporizador para advertencia
-
 // Función de validación reutilizable
 function validateInput(frecuencia, minutos, segundos) {
   if (!frecuencia || frecuencia === "0") {
@@ -112,23 +177,34 @@ function validateInput(frecuencia, minutos, segundos) {
 // Función para configurar el dispositivo
 function configureDevice() {
   console.log("Configurando dispositivo...");
+
+  // Detener cualquier temporizador previo
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+  
+  // Verificar si el dispositivo ya está encendido
   if (estadoDispositivo === "encendido") {
     console.log(
       "El dispositivo ya está configurado y activo. No se reiniciará."
     );
     return; // Salir de la función si el dispositivo ya está encendido
   }
+
+  // Obtener valores de frecuencia y tiempo
   const frecuencia = document.getElementById("frequency").value;
   const minutos = parseInt(document.getElementById("minutes").value || 0);
   const segundos = parseInt(document.getElementById("seconds").value || 0);
 
+  // Validar los inputs (frecuencia y tiempo)
   if (!validateInput(frecuencia, minutos, segundos)) return;
 
+  // Verificar si el recipiente está lleno
   const recipienteLleno = document.getElementById("recipiente").checked;
   if (!recipienteLleno) {
     showAlert(
       "¡ADVERTENCIA!",
-      "Por favor, asegúrese de llenar el recipiente con agua.",
+      "Por favor, asegúrese de llenar el recipiente con un líquido.",
       "warning"
     );
     return;
@@ -143,60 +219,98 @@ function configureDevice() {
     return;
   }
 
-  document.getElementById("minutes").value = tiempoNormalizadoMin;
-  document.getElementById("seconds").value = tiempoNormalizadoSeg;
+  // Validar el estado de la tapa antes de continuar
+  console.log("Validando estado de la tapa...");
+  fetch("http://"+ipLocal+"/estado-tapa", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({}) // Cuerpo vacío (no se necesita enviar datos adicionales)
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (data.estado === "abierta") {
+        // Si la tapa está abierta, mostrar alerta de advertencia
+        showAlert(
+          "¡ADVERTENCIA!",
+          "Por favor, cierre la tapa del equipo para continuar.",
+          "warning"
+        );
+        return; // Salir de la función si la tapa está abierta
+      }
 
-  const elapsedTimeElement = document.getElementById("elapsed-time");
-  elapsedTimeElement.style.display = "block";
+      // Si la tapa está cerrada, continuar con la configuración
+      console.log("La tapa está cerrada. Configurando dispositivo...");
+      document.getElementById("minutes").value = tiempoNormalizadoMin;
+      document.getElementById("seconds").value = tiempoNormalizadoSeg;
 
-  document.getElementById("elapsed-time-value").textContent = `${String(
-    tiempoNormalizadoMin
-  ).padStart(2, "0")}:${String(tiempoNormalizadoSeg).padStart(2, "0")}`;
+      const elapsedTimeElement = document.getElementById("elapsed-time");
+      elapsedTimeElement.style.display = "block";
 
-  if (countdownInterval) clearInterval(countdownInterval);
-  if (configurarDeviceTimer) clearTimeout(configurarDeviceTimer);
+      document.getElementById("elapsed-time-value").textContent = `${String(
+        tiempoNormalizadoMin
+      ).padStart(2, "0")}:${String(tiempoNormalizadoSeg).padStart(2, "0")}`;
 
-  if (totalTiempo > tiempoLimite) {
-    document.getElementById("elapsed-time").style.display = "none";
-    cambiarEstadoDispositivo("apagado");
-    showAlert(
-      "Advertencia",
-      "Si sobrepasa este tiempo, podría haber consecuencias con el equipo. ¿Desea continuar?",
-      "warning",
-      [
-        {
-          text: "Continuar",
-          class: "alert-button-warning",
-          onClick: () => {
-            closeAlert();
-            console.log("El usuario decidió continuar.");
-            elapsedTimeElement.style.display = "block";
-            iniciarConfiguracion(frecuencia, totalTiempo); // Continuar con la configuración
-            cambiarEstadoDispositivo("encendido");
-          },
-        },
-        {
-          text: "Cancelar",
-          class: "alert-button-default",
-          onClick: () => {
-            closeAlert();
-            console.log("El usuario decidió Cancelar.");
-          },
-        },
-      ]
-    );
-    return;
-  }
+      if (countdownInterval) clearInterval(countdownInterval);
+      if (configurarDeviceTimer) clearTimeout(configurarDeviceTimer);
 
-  iniciarConfiguracion(frecuencia, totalTiempo);
-  cambiarEstadoDispositivo("encendido");
+      if (totalTiempo > tiempoLimite) {
+        document.getElementById("elapsed-time").style.display = "none";
+        cambiarEstadoDispositivo("apagado");
+        showAlert(
+          "Advertencia",
+          "Si sobrepasa este tiempo, podría haber consecuencias con el equipo. ¿Desea continuar?",
+          "warning",
+          [
+            {
+              text: "Continuar",
+              class: "alert-button-warning",
+              onClick: () => {
+                closeAlert();
+                console.log("El usuario decidió continuar.");
+                elapsedTimeElement.style.display = "block";
+                iniciarConfiguracion(frecuencia, totalTiempo); // Continuar con la configuración
+                cambiarEstadoDispositivo("encendido");
+              },
+            },
+            {
+              text: "Cancelar",
+              class: "alert-button-default",
+              onClick: () => {
+                closeAlert();
+                console.log("El usuario decidió Cancelar.");
+              },
+            },
+          ]
+        );
+        return;
+      }
+
+      iniciarConfiguracion(frecuencia, totalTiempo);
+      cambiarEstadoDispositivo("encendido");
+    })
+    .catch((error) => {
+      showAlert(
+        "¡ERROR!",
+        `No se pudo verificar el estado de la tapa: ${error.message}`,
+        "error"
+      );
+    });
 }
+
+
 
 function iniciarConfiguracion(frecuencia, totalTiempo) {
   console.log("Iniciando configuración del dispositivo...");
   startCountdown(totalTiempo);
 
-  fetch("/192.168.4.1/configurar", {
+  fetch(ipLocal+"/configurar", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ frecuencia, tiempo: totalTiempo }),
@@ -211,35 +325,22 @@ function iniciarConfiguracion(frecuencia, totalTiempo) {
     );
 }
 
-// Restaurar el temporizador desde localStorage
-function restaurarEstadoDispositivo() {
-  cambiarEstadoDispositivo(estadoDispositivo);
-  console.log(`Estado restaurado: ${estadoDispositivo}`);
 
-  const endTime = parseInt(localStorage.getItem("endTime"));
-  if (estadoDispositivo === "encendido" && endTime) {
-    const tiempoRestante = Math.max(
-      0,
-      Math.floor((endTime - Date.now()) / 1000)
-    );
-    if (tiempoRestante > 0) {
-      console.log(
-        `Restaurando temporizador con ${tiempoRestante} segundos restantes.`
-      );
-      startCountdown(tiempoRestante);
-    } else {
-      console.log("El temporizador ya expiró.");
-      localStorage.removeItem("endTime");
-    }
-  }
-}
 
 function apagarDispositivoAutomatico() {
   console.log("Apagando dispositivo automáticamente...");
-  localStorage.removeItem("tiempoRestante"); // Limpia el tiempo restante
+
+  // Detener cualquier temporizador activo
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+
+  localStorage.removeItem("startTime");
+  localStorage.removeItem("endTime");
   cambiarEstadoDispositivo("apagado");
   apagarDispositivo();
 }
+
 
 function apagarDispositivoManual() {
   console.log("Intentando apagar dispositivo manualmente...");
@@ -293,7 +394,7 @@ function cambiarEstadoDispositivo(estado) {
 }
 
 function apagarDispositivo() {
-  fetch("/192.168.4.1/apagar", {
+  fetch(ipLocal+"/apagar", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ estado: "apagado" }),

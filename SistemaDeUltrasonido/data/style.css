@@ -1,3 +1,4 @@
+/* Fondo global */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -5,22 +6,100 @@ body {
     background: url('/ultrasonido2.jpg') no-repeat center center fixed;
     background-size: cover;
     color: #333;
+    overflow: hidden; /* Oculta el scroll durante la pantalla de bienvenida */
 }
 
-.container {  
-    width: 90%;  
-    max-width: 400px;  
-    position: absolute;   
-    top: 50%;   
-    left: 50%;   
-    transform: translate(-50%, -50%);   
-    padding: 20px;  
-    background: rgba(255, 255, 255, 0.40); 
-    border-radius: 10px;  
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);  
-    text-align: center;  
+/* Pantalla de bienvenida */
+.welcome-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #a2d5ff, #074688); /* Fondo degradado llamativo */
+    color: #ffffff;
+    text-align: center;
+    z-index: 1000;
+    animation: fadeOut 5s ease-in-out forwards;
+    opacity: 1; /* Visibilidad inicial */
 }
 
+/* Texto en la pantalla de bienvenida */
+.welcome-screen h1 {
+    font-size: 2.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    animation: textFade 2.5s ease-in-out forwards;
+}
+
+.welcome-screen p {
+    font-size: 1.4rem;
+    animation: textFade 3s ease-in-out forwards;
+    animation-delay: 0.5s; /* El texto del pÃ¡rrafo aparece un poco despuÃ©s */
+}
+
+/* AnimaciÃ³n para desvanecer todo el contenedor */
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+/* AnimaciÃ³n para el texto */
+@keyframes textFade {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Estilo del contenedor principal */
+.container {
+    width: 90%;
+    max-width: 400px;
+    position: fixed; /* Cambiado a fixed para asegurar el centrado absoluto */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    z-index: 10; /* Asegura que estÃ© por encima de todo */
+}
+/* AnimaciÃ³n para mostrar el contenedor principal */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Resto del diseÃ±o anterior */
 h1 {
     font-size: 1.8rem;
     margin-bottom: 20px;
@@ -35,7 +114,6 @@ label {
     font-weight: bold;
     display: block;
     margin-bottom: 5px;
-    
 }
 
 input[type="range"] {
@@ -148,7 +226,7 @@ button {
 }
 
 .alert-icon.success {
-    background-color: #4CAF50; /* Verde para ÃƒÂ©xito */
+    background-color: #4CAF50; /* Verde para Ã©xito */
 }
 
 .alert-icon.error {
@@ -160,7 +238,7 @@ button {
 }
 
 #alert-button {
-    background-color: #4CAF50; /* Color inicial del botÃƒÂ³n */
+    background-color: #4CAF50; /* Color inicial del botÃ³n */
     color: white;
     border: none;
     padding: 10px 20px;
@@ -174,21 +252,74 @@ button {
     background-color: #45a049;
 }
 
-/* Colores del botÃƒÂ³n segÃƒÂºn el tipo de alerta */
-.alert-content.success #alert-button {
-    background-color: #4CAF50;
+.alert-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-.alert-content.error #alert-button {
-    background-color: #F44336;
+.alert-buttons .cancel-button {
+    background-color: #f44336; /* Rojo */
+    color: white;
 }
 
-.alert-content.warning #alert-button {
-    background-color: #FFC107;
+.alert-buttons .cancel-button:hover {
+    background-color: #d32f2f;
+}
+
+.alert-buttons .confirm-button {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+}
+
+.alert-buttons .confirm-button:hover {
+    background-color: #388E3C;
+}
+
+.alert-button-success {
+    background-color: #4CAF50; /* Verde */
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.alert-button-success:hover {
+    background-color: #45a049;
+}
+
+.alert-button-error {
+    background-color: #F44336; /* Rojo */
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.alert-button-error:hover {
+    background-color: #e53935;
+}
+
+.alert-button-warning {
+    background-color: #FFC107; /* Amarillo */
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.alert-button-warning:hover {
+    background-color: #ffb300;
+}
+
+.alert-button-default {
+    background-color: #ff0000; /* Rojo */
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.alert-button-default:hover {
+    background-color: #d6d6d6;
 }
 
 .checkbox-container input[type="checkbox"] {
-    transform: scale(2); /* Ajusta el nÃƒÂºmero para hacerlo mÃƒÂ¡s grande */
+    transform: scale(2); /* Ajusta el numero para hacerlo mÃƒÂ¡s grande */
 }
 
 .checkbox-container {
@@ -201,86 +332,3 @@ button {
 .checkbox-container label {
     margin-right: 10px; /* Espacio entre el texto y el checkbox */
 }
-
-#alert-buttons button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  #alert-buttons .cancel-button {
-    background-color: #f44336; /* Rojo */
-    color: white;
-  }
-  
-  #alert-buttons .cancel-button:hover {
-    background-color: #d32f2f;
-  }
-  
-  #alert-buttons .confirm-button {
-    background-color: #4CAF50; /* Verde */
-    color: white;
-  }
-  
-  #alert-buttons .confirm-button:hover {
-    background-color: #388E3C;
-  }
-  
-  /* Estilos base para botones */
-.alert-buttons button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    color: white;
-    margin: 5px;
-  }
-  
-  /* BotÃƒÂ³n para notificaciones de ÃƒÂ©xito */
-  .alert-button-success {
-    background-color: #4CAF50; /* Verde */
-    color: #ffffff; /* Texto negro para contraste */
-    font-weight: bold; /* Texto en negrita */
-  }
-  
-  .alert-button-success:hover {
-    background-color: #45a049;
-  }
-  
-  /* BotÃƒÂ³n para notificaciones de error */
-  .alert-button-error {
-    background-color: #F44336; /* Rojo */
-    color: #ffffff; /* Texto negro para contraste */
-    font-weight: bold; /* Texto en negrita */  
-}  
-  
-  
-  .alert-button-error:hover {
-    background-color: #e53935;
-  }
-
-
-  /* BotÃƒÂ³n para notificaciones de advertencia */
-  .alert-button-warning {
-    background-color: #FFC107; /* Amarillo */
-    color: #ffffff; /* Texto negro para contraste */
-    font-weight: bold; /* Texto en negrita */
-  }
-  
-  .alert-button-warning:hover {
-    background-color: #ffb300;
-  }
-  
-/* Boton de cancelar */
-.alert-button-default {
-    background-color: #ff0000; /* Gris claro */
-    color: #ffffff; /* Texto negro para contraste */
-    font-weight: bold; /* Texto en negrita */
-  }
-  
-  .alert-button-default:hover {
-    background-color: #d6d6d6;
-  }
