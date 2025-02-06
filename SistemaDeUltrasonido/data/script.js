@@ -1,7 +1,7 @@
 // Variables para controlar el estado del dispositivo
 let estadoDispositivo = localStorage.getItem("estadoDispositivo") || "apagado";
 let countdownInterval;
-const tiempoLimite = 300; // Tiempo límite del equipo en funcionamiento
+const tiempoLimite = 600; // Tiempo límite del equipo en funcionamiento 10 min
 let configurarDeviceTimer; // Temporizador para advertencia
 const ipLocal= "/192.168.4.1";
 
